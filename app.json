@@ -1,16 +1,25 @@
 {
   "expo": {
     "name": "iPodClassic",
-    "slug": "ipod-classic",
+    "slug": "ipodclassic",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "ipodclassic",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "ios": {
       "bundleIdentifier": "com.ipodclassic.player"
     },
     "android": {
       "package": "com.ipodclassic.player"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "da524bf2-7caa-4cb7-8008-2d48ac141117"
+      }
+    },
+    "owner": "ankit_mohapatra"
   }
 }

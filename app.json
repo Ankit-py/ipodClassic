@@ -9,6 +9,19 @@
       "ios",
       "android"
     ],
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "newArchEnabled": false
+          },
+          "ios": {
+            "newArchEnabled": false
+          }
+        }
+      ]
+    ],
     "ios": {
       "bundleIdentifier": "com.ipodclassic.player"
     },

@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "iPodClassic",
+    "slug": "ipod-classic",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "ipodclassic",
+    "platforms": ["ios", "android"],
+    "ios": {
+      "bundleIdentifier": "com.ipodclassic.player"
+    },
+    "android": {
+      "package": "com.ipodclassic.player"
+    }
+  }
+}

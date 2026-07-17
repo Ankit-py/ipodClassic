@@ -1,0 +1,762 @@
+diff --git a/node_modules/react-native-track-player/LICENSE b/node_modules/react-native-track-player/LICENSE
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/README.md b/node_modules/react-native-track-player/README.md
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/build.gradle b/node_modules/react-native-track-player/android/build.gradle
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/proguard-rules.txt b/node_modules/react-native-track-player/android/proguard-rules.txt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/AndroidManifest.xml b/node_modules/react-native-track-player/android/src/main/AndroidManifest.xml
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/TrackPlayer.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/TrackPlayer.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/extensions/AudioPlayerStateExt.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/extensions/AudioPlayerStateExt.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/extensions/EnumExtensions.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/extensions/EnumExtensions.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/extensions/NumberExt.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/extensions/NumberExt.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/MetadataAdapter.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/MetadataAdapter.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/NowPlayingMetadata.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/NowPlayingMetadata.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/PlaybackMetadata.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/PlaybackMetadata.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/State.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/State.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/Track.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/Track.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/TrackAudioItem.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/TrackAudioItem.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/TrackMetadata.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/model/TrackMetadata.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicEvents.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicEvents.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt
+old mode 100644
+new mode 100755
+index b2409a0..f8e4730
+--- a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt
++++ b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt
+@@ -545,7 +545,9 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
+         if (verifyServiceBoundOrReject(callback)) return@launch
+ 
+         if (index >= 0 && index < musicService.tracks.size) {
+-            callback.resolve(Arguments.fromBundle(musicService.tracks[index].originalItem))
++            musicService.tracks[index].originalItem?.let {
++                callback.resolve(Arguments.fromBundle(it))
++            } ?: callback.resolve(null)
+         } else {
+             callback.resolve(null)
+         }
+@@ -555,7 +557,7 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
+     fun getQueue(callback: Promise) = scope.launch {
+         if (verifyServiceBoundOrReject(callback)) return@launch
+ 
+-        callback.resolve(Arguments.fromList(musicService.tracks.map { it.originalItem }))
++        callback.resolve(Arguments.fromList(musicService.tracks.mapNotNull { it.originalItem }))
+     }
+ 
+     @ReactMethod
+@@ -584,9 +586,9 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
+         if (verifyServiceBoundOrReject(callback)) return@launch
+         callback.resolve(
+             if (musicService.tracks.isEmpty()) null
+-            else Arguments.fromBundle(
+-                musicService.tracks[musicService.getCurrentTrackIndex()].originalItem
+-            )
++            else musicService.tracks[musicService.getCurrentTrackIndex()].originalItem?.let {
++                Arguments.fromBundle(it)
++            }
+         )
+     }
+ 
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/service/MusicService.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/service/MusicService.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/utils/AppForegroundTracker.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/utils/AppForegroundTracker.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/utils/BundleUtils.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/utils/BundleUtils.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/utils/RejectionException.kt b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/utils/RejectionException.kt
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/res/drawable/forward.xml b/node_modules/react-native-track-player/android/src/main/res/drawable/forward.xml
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/res/drawable/rewind.xml b/node_modules/react-native-track-player/android/src/main/res/drawable/rewind.xml
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/android/src/main/res/values/strings.xml b/node_modules/react-native-track-player/android/src/main/res/values/strings.xml
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer.xcodeproj/project.pbxproj b/node_modules/react-native-track-player/ios/RNTrackPlayer.xcodeproj/project.pbxproj
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer.xcodeproj/project.xcworkspace/contents.xcworkspacedata b/node_modules/react-native-track-player/ios/RNTrackPlayer.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/Capabilities.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/Capabilities.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/MediaURL.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/MediaURL.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/MetadataAdapter.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/MetadataAdapter.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/PitchAlgorithms.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/PitchAlgorithms.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/SessionCategories.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/SessionCategories.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/State.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/State.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/Track.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/Models/Track.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/RNTrackPlayer.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/RNTrackPlayer.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/RNTrackPlayerBridge.h b/node_modules/react-native-track-player/ios/RNTrackPlayer/RNTrackPlayerBridge.h
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/RNTrackPlayerBridge.m b/node_modules/react-native-track-player/ios/RNTrackPlayer/RNTrackPlayerBridge.m
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Support/RNTrackPlayer-Bridging-Header.h b/node_modules/react-native-track-player/ios/RNTrackPlayer/Support/RNTrackPlayer-Bridging-Header.h
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Utils/EventEmitter.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/Utils/EventEmitter.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Utils/EventType.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/Utils/EventType.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Utils/Metadata.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/Utils/Metadata.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Vendor/SwiftAudio/Classes/RepeatMode.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/Vendor/SwiftAudio/Classes/RepeatMode.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/ios/RNTrackPlayer/Vendor/SwiftAudio/Classes/Utils/DispatchQueueType.swift b/node_modules/react-native-track-player/ios/RNTrackPlayer/Vendor/SwiftAudio/Classes/Utils/DispatchQueueType.swift
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/TrackPlayerModule.d.ts b/node_modules/react-native-track-player/lib/src/TrackPlayerModule.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/TrackPlayerModule.js b/node_modules/react-native-track-player/lib/src/TrackPlayerModule.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/TrackPlayerModule.web.d.ts b/node_modules/react-native-track-player/lib/src/TrackPlayerModule.web.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/TrackPlayerModule.web.js b/node_modules/react-native-track-player/lib/src/TrackPlayerModule.web.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/AndroidAudioContentType.d.ts b/node_modules/react-native-track-player/lib/src/constants/AndroidAudioContentType.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/AndroidAudioContentType.js b/node_modules/react-native-track-player/lib/src/constants/AndroidAudioContentType.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/AppKilledPlaybackBehavior.d.ts b/node_modules/react-native-track-player/lib/src/constants/AppKilledPlaybackBehavior.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/AppKilledPlaybackBehavior.js b/node_modules/react-native-track-player/lib/src/constants/AppKilledPlaybackBehavior.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/Capability.d.ts b/node_modules/react-native-track-player/lib/src/constants/Capability.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/Capability.js b/node_modules/react-native-track-player/lib/src/constants/Capability.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/Event.d.ts b/node_modules/react-native-track-player/lib/src/constants/Event.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/Event.js b/node_modules/react-native-track-player/lib/src/constants/Event.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/IOSCategory.d.ts b/node_modules/react-native-track-player/lib/src/constants/IOSCategory.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/IOSCategory.js b/node_modules/react-native-track-player/lib/src/constants/IOSCategory.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/IOSCategoryMode.d.ts b/node_modules/react-native-track-player/lib/src/constants/IOSCategoryMode.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/IOSCategoryMode.js b/node_modules/react-native-track-player/lib/src/constants/IOSCategoryMode.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/IOSCategoryOptions.d.ts b/node_modules/react-native-track-player/lib/src/constants/IOSCategoryOptions.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/IOSCategoryOptions.js b/node_modules/react-native-track-player/lib/src/constants/IOSCategoryOptions.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/PitchAlgorithm.d.ts b/node_modules/react-native-track-player/lib/src/constants/PitchAlgorithm.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/PitchAlgorithm.js b/node_modules/react-native-track-player/lib/src/constants/PitchAlgorithm.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/RatingType.d.ts b/node_modules/react-native-track-player/lib/src/constants/RatingType.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/RatingType.js b/node_modules/react-native-track-player/lib/src/constants/RatingType.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/RepeatMode.d.ts b/node_modules/react-native-track-player/lib/src/constants/RepeatMode.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/RepeatMode.js b/node_modules/react-native-track-player/lib/src/constants/RepeatMode.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/State.d.ts b/node_modules/react-native-track-player/lib/src/constants/State.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/State.js b/node_modules/react-native-track-player/lib/src/constants/State.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/TrackType.d.ts b/node_modules/react-native-track-player/lib/src/constants/TrackType.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/TrackType.js b/node_modules/react-native-track-player/lib/src/constants/TrackType.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/index.d.ts b/node_modules/react-native-track-player/lib/src/constants/index.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/constants/index.js b/node_modules/react-native-track-player/lib/src/constants/index.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/index.d.ts b/node_modules/react-native-track-player/lib/src/hooks/index.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/index.js b/node_modules/react-native-track-player/lib/src/hooks/index.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/useActiveTrack.d.ts b/node_modules/react-native-track-player/lib/src/hooks/useActiveTrack.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/useActiveTrack.js b/node_modules/react-native-track-player/lib/src/hooks/useActiveTrack.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/useAppIsInBackground.d.ts b/node_modules/react-native-track-player/lib/src/hooks/useAppIsInBackground.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/useAppIsInBackground.js b/node_modules/react-native-track-player/lib/src/hooks/useAppIsInBackground.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/useIsPlaying.d.ts b/node_modules/react-native-track-player/lib/src/hooks/useIsPlaying.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/useIsPlaying.js b/node_modules/react-native-track-player/lib/src/hooks/useIsPlaying.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/usePlayWhenReady.d.ts b/node_modules/react-native-track-player/lib/src/hooks/usePlayWhenReady.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/usePlayWhenReady.js b/node_modules/react-native-track-player/lib/src/hooks/usePlayWhenReady.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/usePlaybackState.d.ts b/node_modules/react-native-track-player/lib/src/hooks/usePlaybackState.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/usePlaybackState.js b/node_modules/react-native-track-player/lib/src/hooks/usePlaybackState.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/useProgress.d.ts b/node_modules/react-native-track-player/lib/src/hooks/useProgress.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/useProgress.js b/node_modules/react-native-track-player/lib/src/hooks/useProgress.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/useTrackPlayerEvents.d.ts b/node_modules/react-native-track-player/lib/src/hooks/useTrackPlayerEvents.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/hooks/useTrackPlayerEvents.js b/node_modules/react-native-track-player/lib/src/hooks/useTrackPlayerEvents.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/index.d.ts b/node_modules/react-native-track-player/lib/src/index.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/index.js b/node_modules/react-native-track-player/lib/src/index.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/AndroidOptions.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/AndroidOptions.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/AndroidOptions.js b/node_modules/react-native-track-player/lib/src/interfaces/AndroidOptions.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/FeedbackOptions.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/FeedbackOptions.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/FeedbackOptions.js b/node_modules/react-native-track-player/lib/src/interfaces/FeedbackOptions.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/MetadataOptions.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/MetadataOptions.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/MetadataOptions.js b/node_modules/react-native-track-player/lib/src/interfaces/MetadataOptions.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/NowPlayingMetadata.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/NowPlayingMetadata.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/NowPlayingMetadata.js b/node_modules/react-native-track-player/lib/src/interfaces/NowPlayingMetadata.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/PlaybackState.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/PlaybackState.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/PlaybackState.js b/node_modules/react-native-track-player/lib/src/interfaces/PlaybackState.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/PlayerOptions.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/PlayerOptions.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/PlayerOptions.js b/node_modules/react-native-track-player/lib/src/interfaces/PlayerOptions.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/Progress.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/Progress.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/Progress.js b/node_modules/react-native-track-player/lib/src/interfaces/Progress.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/ResourceObject.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/ResourceObject.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/ResourceObject.js b/node_modules/react-native-track-player/lib/src/interfaces/ResourceObject.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/ServiceHandler.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/ServiceHandler.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/ServiceHandler.js b/node_modules/react-native-track-player/lib/src/interfaces/ServiceHandler.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/Track.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/Track.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/Track.js b/node_modules/react-native-track-player/lib/src/interfaces/Track.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/TrackMetadataBase.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/TrackMetadataBase.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/TrackMetadataBase.js b/node_modules/react-native-track-player/lib/src/interfaces/TrackMetadataBase.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/UpdateOptions.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/UpdateOptions.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/UpdateOptions.js b/node_modules/react-native-track-player/lib/src/interfaces/UpdateOptions.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/AudioMetadataReceivedEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/AudioMetadataReceivedEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/AudioMetadataReceivedEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/AudioMetadataReceivedEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/EventPayloadByEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/EventPayloadByEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/EventPayloadByEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/EventPayloadByEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackActiveTrackChangedEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackActiveTrackChangedEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackActiveTrackChangedEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackActiveTrackChangedEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackErrorEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackErrorEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackErrorEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackErrorEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackMetadataReceivedEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackMetadataReceivedEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackMetadataReceivedEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackMetadataReceivedEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackPlayWhenReadyChangedEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackPlayWhenReadyChangedEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackPlayWhenReadyChangedEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackPlayWhenReadyChangedEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackProgressUpdatedEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackProgressUpdatedEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackProgressUpdatedEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackProgressUpdatedEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackQueueEndedEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackQueueEndedEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackQueueEndedEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackQueueEndedEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackTrackChangedEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackTrackChangedEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackTrackChangedEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/PlaybackTrackChangedEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlayerErrorEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/PlayerErrorEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/PlayerErrorEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/PlayerErrorEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteDuckEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteDuckEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteDuckEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteDuckEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteJumpBackwardEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteJumpBackwardEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteJumpBackwardEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteJumpBackwardEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteJumpForwardEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteJumpForwardEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteJumpForwardEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteJumpForwardEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemotePlayIdEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/RemotePlayIdEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemotePlayIdEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/RemotePlayIdEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemotePlaySearchEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/RemotePlaySearchEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemotePlaySearchEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/RemotePlaySearchEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteSeekEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteSeekEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteSeekEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteSeekEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteSetRatingEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteSetRatingEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteSetRatingEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteSetRatingEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteSkipEvent.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteSkipEvent.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteSkipEvent.js b/node_modules/react-native-track-player/lib/src/interfaces/events/RemoteSkipEvent.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/index.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/events/index.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/events/index.js b/node_modules/react-native-track-player/lib/src/interfaces/events/index.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/index.d.ts b/node_modules/react-native-track-player/lib/src/interfaces/index.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/interfaces/index.js b/node_modules/react-native-track-player/lib/src/interfaces/index.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/resolveAssetSource.d.ts b/node_modules/react-native-track-player/lib/src/resolveAssetSource.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/resolveAssetSource.js b/node_modules/react-native-track-player/lib/src/resolveAssetSource.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/resolveAssetSource.web.d.ts b/node_modules/react-native-track-player/lib/src/resolveAssetSource.web.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/resolveAssetSource.web.js b/node_modules/react-native-track-player/lib/src/resolveAssetSource.web.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/trackPlayer.d.ts b/node_modules/react-native-track-player/lib/src/trackPlayer.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/src/trackPlayer.js b/node_modules/react-native-track-player/lib/src/trackPlayer.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/TrackPlayer/Player.d.ts b/node_modules/react-native-track-player/lib/web/TrackPlayer/Player.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/TrackPlayer/Player.js b/node_modules/react-native-track-player/lib/web/TrackPlayer/Player.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/TrackPlayer/PlaylistPlayer.d.ts b/node_modules/react-native-track-player/lib/web/TrackPlayer/PlaylistPlayer.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/TrackPlayer/PlaylistPlayer.js b/node_modules/react-native-track-player/lib/web/TrackPlayer/PlaylistPlayer.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/TrackPlayer/RepeatMode.d.ts b/node_modules/react-native-track-player/lib/web/TrackPlayer/RepeatMode.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/TrackPlayer/RepeatMode.js b/node_modules/react-native-track-player/lib/web/TrackPlayer/RepeatMode.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/TrackPlayer/SetupNotCalledError.d.ts b/node_modules/react-native-track-player/lib/web/TrackPlayer/SetupNotCalledError.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/TrackPlayer/SetupNotCalledError.js b/node_modules/react-native-track-player/lib/web/TrackPlayer/SetupNotCalledError.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/TrackPlayer/index.d.ts b/node_modules/react-native-track-player/lib/web/TrackPlayer/index.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/TrackPlayer/index.js b/node_modules/react-native-track-player/lib/web/TrackPlayer/index.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/TrackPlayerModule.d.ts b/node_modules/react-native-track-player/lib/web/TrackPlayerModule.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/TrackPlayerModule.js b/node_modules/react-native-track-player/lib/web/TrackPlayerModule.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/index.d.ts b/node_modules/react-native-track-player/lib/web/index.d.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/lib/web/index.js b/node_modules/react-native-track-player/lib/web/index.js
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/react-native-track-player.podspec b/node_modules/react-native-track-player/react-native-track-player.podspec
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/TrackPlayerModule.ts b/node_modules/react-native-track-player/src/TrackPlayerModule.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/TrackPlayerModule.web.ts b/node_modules/react-native-track-player/src/TrackPlayerModule.web.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/AndroidAudioContentType.ts b/node_modules/react-native-track-player/src/constants/AndroidAudioContentType.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/AppKilledPlaybackBehavior.ts b/node_modules/react-native-track-player/src/constants/AppKilledPlaybackBehavior.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/Capability.ts b/node_modules/react-native-track-player/src/constants/Capability.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/Event.ts b/node_modules/react-native-track-player/src/constants/Event.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/IOSCategory.ts b/node_modules/react-native-track-player/src/constants/IOSCategory.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/IOSCategoryMode.ts b/node_modules/react-native-track-player/src/constants/IOSCategoryMode.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/IOSCategoryOptions.ts b/node_modules/react-native-track-player/src/constants/IOSCategoryOptions.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/PitchAlgorithm.ts b/node_modules/react-native-track-player/src/constants/PitchAlgorithm.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/RatingType.ts b/node_modules/react-native-track-player/src/constants/RatingType.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/RepeatMode.ts b/node_modules/react-native-track-player/src/constants/RepeatMode.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/State.ts b/node_modules/react-native-track-player/src/constants/State.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/TrackType.ts b/node_modules/react-native-track-player/src/constants/TrackType.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/constants/index.ts b/node_modules/react-native-track-player/src/constants/index.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/hooks/index.ts b/node_modules/react-native-track-player/src/hooks/index.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/hooks/useActiveTrack.ts b/node_modules/react-native-track-player/src/hooks/useActiveTrack.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/hooks/useAppIsInBackground.ts b/node_modules/react-native-track-player/src/hooks/useAppIsInBackground.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/hooks/useIsPlaying.ts b/node_modules/react-native-track-player/src/hooks/useIsPlaying.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/hooks/usePlayWhenReady.ts b/node_modules/react-native-track-player/src/hooks/usePlayWhenReady.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/hooks/usePlaybackState.ts b/node_modules/react-native-track-player/src/hooks/usePlaybackState.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/hooks/useProgress.ts b/node_modules/react-native-track-player/src/hooks/useProgress.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/hooks/useTrackPlayerEvents.ts b/node_modules/react-native-track-player/src/hooks/useTrackPlayerEvents.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/index.ts b/node_modules/react-native-track-player/src/index.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/AndroidOptions.ts b/node_modules/react-native-track-player/src/interfaces/AndroidOptions.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/FeedbackOptions.ts b/node_modules/react-native-track-player/src/interfaces/FeedbackOptions.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/MetadataOptions.ts b/node_modules/react-native-track-player/src/interfaces/MetadataOptions.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/NowPlayingMetadata.ts b/node_modules/react-native-track-player/src/interfaces/NowPlayingMetadata.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/PlaybackState.ts b/node_modules/react-native-track-player/src/interfaces/PlaybackState.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/PlayerOptions.ts b/node_modules/react-native-track-player/src/interfaces/PlayerOptions.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/Progress.ts b/node_modules/react-native-track-player/src/interfaces/Progress.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/ResourceObject.ts b/node_modules/react-native-track-player/src/interfaces/ResourceObject.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/ServiceHandler.ts b/node_modules/react-native-track-player/src/interfaces/ServiceHandler.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/Track.ts b/node_modules/react-native-track-player/src/interfaces/Track.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/TrackMetadataBase.ts b/node_modules/react-native-track-player/src/interfaces/TrackMetadataBase.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/UpdateOptions.ts b/node_modules/react-native-track-player/src/interfaces/UpdateOptions.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/AudioMetadataReceivedEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/AudioMetadataReceivedEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/EventPayloadByEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/EventPayloadByEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/PlaybackActiveTrackChangedEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/PlaybackActiveTrackChangedEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/PlaybackErrorEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/PlaybackErrorEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/PlaybackMetadataReceivedEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/PlaybackMetadataReceivedEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/PlaybackPlayWhenReadyChangedEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/PlaybackPlayWhenReadyChangedEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/PlaybackProgressUpdatedEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/PlaybackProgressUpdatedEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/PlaybackQueueEndedEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/PlaybackQueueEndedEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/PlaybackTrackChangedEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/PlaybackTrackChangedEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/PlayerErrorEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/PlayerErrorEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/RemoteDuckEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/RemoteDuckEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/RemoteJumpBackwardEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/RemoteJumpBackwardEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/RemoteJumpForwardEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/RemoteJumpForwardEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/RemotePlayIdEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/RemotePlayIdEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/RemotePlaySearchEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/RemotePlaySearchEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/RemoteSeekEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/RemoteSeekEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/RemoteSetRatingEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/RemoteSetRatingEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/RemoteSkipEvent.ts b/node_modules/react-native-track-player/src/interfaces/events/RemoteSkipEvent.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/events/index.ts b/node_modules/react-native-track-player/src/interfaces/events/index.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/interfaces/index.ts b/node_modules/react-native-track-player/src/interfaces/index.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/resolveAssetSource.ts b/node_modules/react-native-track-player/src/resolveAssetSource.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/resolveAssetSource.web.ts b/node_modules/react-native-track-player/src/resolveAssetSource.web.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/src/trackPlayer.ts b/node_modules/react-native-track-player/src/trackPlayer.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/web/TrackPlayer/Player.ts b/node_modules/react-native-track-player/web/TrackPlayer/Player.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/web/TrackPlayer/PlaylistPlayer.ts b/node_modules/react-native-track-player/web/TrackPlayer/PlaylistPlayer.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/web/TrackPlayer/RepeatMode.ts b/node_modules/react-native-track-player/web/TrackPlayer/RepeatMode.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/web/TrackPlayer/SetupNotCalledError.ts b/node_modules/react-native-track-player/web/TrackPlayer/SetupNotCalledError.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/web/TrackPlayer/index.ts b/node_modules/react-native-track-player/web/TrackPlayer/index.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/web/TrackPlayerModule.ts b/node_modules/react-native-track-player/web/TrackPlayerModule.ts
+old mode 100644
+new mode 100755
+diff --git a/node_modules/react-native-track-player/web/index.ts b/node_modules/react-native-track-player/web/index.ts
+old mode 100644
+new mode 100755
